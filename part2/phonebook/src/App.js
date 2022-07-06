@@ -1,49 +1,20 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
-
-const Persons = ({persons}) => 
-  <>
-    {
-      persons.map((person) => <p key={person.id}>{person.name} {person.number}</p>)
-    }
-  </>
-
-const Filter = ({value, onChange}) => 
-  <>
-    <input value={value} onChange={onChange}/>
-  </>
-
-const PersonForm = ({onSubmit, nameValue, onNameChange, phoneNumberValue, onPhoneNumberChange}) =>
-  <>
-    <form onSubmit={onSubmit}>
-      <div>
-        name: <input value={nameValue} onChange={onNameChange}/>
-      </div>
-      <div>
-        number: <input value={phoneNumberValue} onChange={onPhoneNumberChange}/>
-      </div>
-      <div>
-        <button type="submit">add</button>
-      </div>
-    </form>
-  </>
+import personService from './services/person'
+import { PersonFilter, PersonForm, PersonList } from './components/Person'
+import { Notification } from './components/Notification'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newPhoneNumber, setPhoneNumber] = useState('')
   const [filterName, setFilterName] = useState('')
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => {
-    axios.get('http://localhost:3001/persons')
-      .then((response) => {
-        setPersons(response.data)
-      })
+    personService
+      .getAll()
+      .then(initPersons => setPersons(initPersons))
   }, [])
-
-  const personToShow = filterName === '' 
-    ? persons
-    : persons.filter((person) => person.name.toUpperCase().indexOf(filterName.toUpperCase()) > -1)
 
   const onNameChange = (event) => {
     setNewName(event.target.value)
@@ -53,18 +24,49 @@ const App = () => {
     setPhoneNumber(event.target.value)
   }
 
+  const showNotification = (message, isSuccess) => {
+    setNotification({message, isSuccess})
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
+
   const onSubmit = (event) => {
     event.preventDefault()
 
-    if(persons.filter((person) => person.name === newName).length > 0){
-      alert(`${newName} is already added to phonebook`)
+    const filteredPersonArr = persons.filter((person) => person.name === newName)
+    if(filteredPersonArr.length > 0){
+      const filteredPerson = filteredPersonArr[0]
+      if(window.confirm(`${filteredPerson.name} is already added to phonebook, replace the old number with a new one?`)){
+        const newPerson = {
+          ...filteredPerson,
+          number: newPhoneNumber
+        }
+        personService
+          .update(newPerson)
+          .then((returnedPerson) => {
+            let newPersons = persons.map((person) => person.id !== returnedPerson.id ? person : returnedPerson)
+            showNotification(`Updated ${newPerson.name}`, true)
+            setPersons(newPersons)
+          })
+          .catch(error => {
+            showNotification(`Information of ${newPerson.name} has already been removed from server`, false)
+            setPersons(persons.filter((person) => person.id !== newPerson.id))
+          })
+      }
     } else {
       const newPerson = {
         id: persons.length + 1,
         name: newName,
         number: newPhoneNumber
       }
-      setPersons(persons.concat(newPerson))
+
+      personService
+        .create(newPerson)
+        .then((returnedPerson) => {
+          showNotification(`Added ${returnedPerson.name}`, true)
+          setPersons(persons.concat(returnedPerson))
+        })
     }
     setNewName('')
     setPhoneNumber('')
@@ -74,10 +76,26 @@ const App = () => {
     setFilterName(event.target.value)
   }
 
+  const onDeleteClick = (deletePerson) => {
+    if(window.confirm(`Delete ${deletePerson.name} ?`)){
+      personService
+      .remove(deletePerson.id)
+      .then((returnedPersonId) => {
+        const newPersons = persons.filter((person) => person.id !== returnedPersonId)
+        setPersons(newPersons)
+      })
+    }
+  }
+
+  const personToShow = filterName === '' 
+    ? persons
+    : persons.filter((person) => person.name.toUpperCase().indexOf(filterName.toUpperCase()) > -1)
+
   return (
     <div>
       <h2>Phonebook</h2>
-      <Filter value={filterName} onChange={onFilterNameChange}/>
+      <Notification notification={notification}/>
+      <PersonFilter value={filterName} onChange={onFilterNameChange}/>
 
       <h3>Add a new</h3>
       <PersonForm 
@@ -88,7 +106,7 @@ const App = () => {
         onPhoneNumberChange={onPhoneNumberChange}/>
 
       <h3>Numbers</h3>
-      <Persons persons={personToShow}/>
+      <PersonList persons={personToShow} onDeleteClick={onDeleteClick}/>
     </div>
   )
 }
