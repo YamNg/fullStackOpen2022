@@ -50,8 +50,8 @@ const App = () => {
             setPersons(newPersons)
           })
           .catch(error => {
-            showNotification(`Information of ${newPerson.name} has already been removed from server`, false)
-            setPersons(persons.filter((person) => person.id !== newPerson.id))
+            console.log(error.response.data.error)
+            showNotification(error.response.data.error, false)
           })
       }
     } else {
@@ -66,6 +66,11 @@ const App = () => {
         .then((returnedPerson) => {
           showNotification(`Added ${returnedPerson.name}`, true)
           setPersons(persons.concat(returnedPerson))
+        })
+        .catch(error => {
+          // this is the way to access the error message
+          console.log(error.response.data.error)
+          showNotification(error.response.data.error, false)
         })
     }
     setNewName('')
