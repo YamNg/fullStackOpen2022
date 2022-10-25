@@ -14,4 +14,18 @@ const create = (newBlog, token) => {
   return request.then((response) => response.data)
 }
 
-export default { getAll, create }
+const update = (newBlog) => {
+  const request = axios.put(`${baseUrl}/${newBlog.id}`, newBlog)
+  return request.then((response) => response.data)
+}
+
+const remove = (blogToDelete, token) => {
+  const config = {
+    headers: { Authorization: `Bearer ${token}` }
+  }
+  const request = axios.delete(`${baseUrl}/${blogToDelete.id}`, config)
+  return request.then((response) => response.data)
+}
+
+
+export default { getAll, create, update, remove }

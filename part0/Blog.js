@@ -1,21 +1,15 @@
 import { useState } from 'react'
 
-const Blog = ({ user, blog, updateBlog, removeBlog }) => {
+const Blog = ({blog, updateBlog}) => {
 
   const [showDetail, setShowDetail] = useState(false)
 
   const negateShowDetail = () => setShowDetail(!showDetail)
 
   const handleLike = () => {
-    const newBlog = { ...blog }
+    const newBlog = {...blog}
     newBlog.likes = newBlog.likes + 1
     updateBlog(newBlog)
-  }
-
-  const handleRemove = () => {
-    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}`)) {
-      removeBlog(blog)
-    }
   }
 
   const blogStyle = {
@@ -30,34 +24,25 @@ const Blog = ({ user, blog, updateBlog, removeBlog }) => {
     <div style={blogStyle}>
       <div>
         {blog.title} {blog.author}
-        <input type="submit" onClick={negateShowDetail} value={(showDetail ? 'hide' : 'view')} />
+        <input type="submit" onClick={negateShowDetail} value={(showDetail ? "hide" : "view")} />
         {
           showDetail === true && (
-            <div className='blogDetail'>
+            <>
               <br/>
               {blog.url}
               <br/>
               likes: {blog.likes} <input type="submit" onClick={handleLike} value="like" />
               <br/>
               {blog.user.username}
-              <br/>
-              {
-                blog.user.username === user.username &&
-                (
-                  <>
-                    <input type="submit" onClick={handleRemove} value="remove" />
-                  </>
-                )
-              }
-            </div>
+            </>
           )
         }
       </div>
-    </div>
+    </div>  
   )
 }
 
-const CreateBlogForm = ({ addBlog }) => {
+const CreateBlogForm = ({addBlog}) => {
 
   const [newBlogTitle, setNewBlogTitle] = useState('')
   const [newBlogAuthor, setNewBlogAuthor] = useState('')
@@ -73,20 +58,20 @@ const CreateBlogForm = ({ addBlog }) => {
   }
 
   return (
-    <>
+      <>
       <h2>create new</h2>
       <form onSubmit={onCreateBlog}>
         <div>
           title:
-          <input type="text" name="title" onChange={({ target }) => setNewBlogTitle(target.value)}/>
+          <input type="text" name="title" onChange={({target}) => setNewBlogTitle(target.value)}/>
         </div>
         <div>
           author:
-          <input type="text" name="author" onChange={({ target }) => setNewBlogAuthor(target.value)}/>
+          <input type="text" name="author" onChange={({target}) => setNewBlogAuthor(target.value)}/>
         </div>
         <div>
           url:
-          <input type="text" name="url" onChange={({ target }) => setNewBlogUrl(target.value)}/>
+          <input type="text" name="url" onChange={({target}) => setNewBlogUrl(target.value)}/>
         </div>
         <button type="submit">create</button>
       </form>
@@ -94,4 +79,4 @@ const CreateBlogForm = ({ addBlog }) => {
   )
 }
 
-export { Blog, CreateBlogForm }
+export { Blog, CreateBlogForm}

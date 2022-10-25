@@ -6,7 +6,7 @@ const Notification = ({ notification }) => {
     if (message === null) {
       return null
     }
-  
+
     const notificationStyle = isSuccess === true ? 'success' : 'error'
     return (
       <div className={`notification ${notificationStyle}`}>{message}</div>
