@@ -28,16 +28,16 @@ const Blog = ({ user, blog, updateBlog, removeBlog }) => {
 
   return (
     <div style={blogStyle}>
-      <div>
+      <div className='blog'>
         {blog.title} {blog.author}
-        <input type="submit" onClick={negateShowDetail} value={(showDetail ? 'hide' : 'view')} />
+        <input className='showBlogBtn' type="submit" onClick={negateShowDetail} value={(showDetail ? 'hide' : 'view')} />
         {
           showDetail === true && (
             <div className='blogDetail'>
               <br/>
               {blog.url}
               <br/>
-              likes: {blog.likes} <input type="submit" onClick={handleLike} value="like" />
+              likes: {blog.likes} <input className='likeBlogBtn' type="submit" onClick={handleLike} value="like" />
               <br/>
               {blog.user.username}
               <br/>
@@ -45,7 +45,7 @@ const Blog = ({ user, blog, updateBlog, removeBlog }) => {
                 blog.user.username === user.username &&
                 (
                   <>
-                    <input type="submit" onClick={handleRemove} value="remove" />
+                    <input className='deleteBlogBtn' type="submit" onClick={handleRemove} value="remove" />
                   </>
                 )
               }
@@ -75,20 +75,20 @@ const CreateBlogForm = ({ addBlog }) => {
   return (
     <>
       <h2>create new</h2>
-      <form onSubmit={onCreateBlog}>
+      <form id="createBlogForm" onSubmit={onCreateBlog}>
         <div>
           title:
-          <input type="text" name="title" onChange={({ target }) => setNewBlogTitle(target.value)}/>
+          <input type="text" id="title" name="title" onChange={({ target }) => setNewBlogTitle(target.value)}/>
         </div>
         <div>
           author:
-          <input type="text" name="author" onChange={({ target }) => setNewBlogAuthor(target.value)}/>
+          <input type="text" id="author" name="author" onChange={({ target }) => setNewBlogAuthor(target.value)}/>
         </div>
         <div>
           url:
-          <input type="text" name="url" onChange={({ target }) => setNewBlogUrl(target.value)}/>
+          <input type="text" id="url" name="url" onChange={({ target }) => setNewBlogUrl(target.value)}/>
         </div>
-        <button type="submit">create</button>
+        <button id="createBlogBtn" type="submit">create</button>
       </form>
     </>
   )
